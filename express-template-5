@@ -1,0 +1,245 @@
+{% unless settings.style == 'none' %}
+  {% partial 'platform_styles' %}
+{% endunless %}
+
+{% if settings.expand_descriptions %}
+  <script type="text/javascript">
+    mc_$$ID$$_util = (function() {
+      function getEl(el) {
+        if('tagName' in el) return el;
+        return document.getElementById(el);
+      }
+
+      function upTag(el, tag) {
+        var e;
+        if(e = getEl(el)) {
+          while(e) {
+            if(e.tagName.toLowerCase() == tag.toLowerCase()) return e;
+            e = e.parentNode;
+          }
+          return null;
+        } else {
+          return null;
+        }
+      }
+
+      function hasClass(el, klass) {
+        if(!el) return;
+        var classes = el.className;
+        return (classes.length > 0 && (classes == klass ||
+          new RegExp("(^|\\s)" + klass + "(\\s|$)").test(classes)));
+      }
+
+      function downClass(el, tag, klass) {
+        var e = getEl(el);
+        if(!e) return null;
+        var els = e.getElementsByTagName(tag);
+        var i = 0;
+        for(i = 0; i < els.length; i++) {
+          e = els[i];
+          if(hasClass(e, klass)) return e;
+        }
+        return null;
+      }
+
+      function toggleVisibility(el) {
+        var e;
+        if(e = getEl(el)) {
+          if(e.style.display == 'none') {
+            e.style.display = '';
+          } else {
+            e.style.display = 'none';
+          }
+        }
+      }
+
+      return {
+        toggle: function(el) {
+          toggleVisibility(downClass(upTag(el, 'li'), 'div', 'lww'));
+        }
+      };
+    })();
+  </script>
+{% endif %}
+<style>
+  .template-5 .lwn {
+    font-weight:normal;
+  }
+  .template-5 .le-event,
+  .template-5 .le-list {
+    list-style:none;
+    list-style-image:none;
+    margin:0;
+    padding:0;
+  }
+  .template-5  .le-list {
+    display:flex;
+    flex-direction:row;
+    flex-wrap:wrap;
+    margin:0 -20px;
+  }
+  .template-5  .le-event {
+    padding: 0 20px;
+    width:100%;
+  }
+  @media screen and (min-width:768px) {
+    .template-5  .le-event {
+      width:50%;
+    }
+  }
+  @media screen and (min-width:960px) {
+    .template-5  .le-event {
+      width:50%;
+    }
+  }
+
+
+  .template-5  .le-wrapper {
+    margin-bottom:20px;
+    overflow:hidden;
+  }
+  .template-5 .le-date-wrapper {
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    width:40%;
+    padding:10px;
+  }
+  .template-5  .le-date {
+    width: 100%;
+    text-align: center;
+  }
+  .template-5  .le-date-month {
+    font-size:150%;
+  }
+  .template-5  .le-date-day {
+    font-size:250%;
+  }
+  .template-5  .le-event-content {
+    overflow:hidden;
+    padding:10px 0 0;
+  }
+  .template-5  .le-date-time,
+  .template-5  .le-description {
+    font-size: 85%;
+    padding-top: 5px;
+  }
+  .template-5  img.le-image {
+    width:50px;
+    height:auto;
+  }
+  @media screen and (min-width:768px) {
+    .template-5  img.le-image {
+      width:80px;
+      height:auto;
+    }
+  }
+  .template-5 .le-event-title {
+    font-weight:bold;
+    font-size:150%;
+  }
+  .template-5 .le-no-events {
+    padding:20px;
+  }
+  .template-5 .le-date-image {
+    display:flex;
+    flex-direction:row;
+    flex-wrap:nowrap;
+    align-items:center;
+    width:100%;
+    background:#202020;
+    color:#fff;
+  }
+  .template-5 .le-photo {
+    width:60%;
+  }
+  .template-5 .le-photo img {
+    display:block;
+    width:100%;
+    height: auto;
+  }
+  .template-5 .le-time-location {
+    padding-top:10px;
+  }
+  .view-event-details {
+    font-size:75%;
+  }
+</style>
+{% if current_user %}<!-- logged in -->{% endif %}
+<div class="template-5">
+  <div class="localist-wrapper">
+    <ul id="lwe" class="le-list">
+      {% if events == empty %}
+        <li class="le-no-events">{{ site.snippets.widget_nocontent }}</li>
+      {% else %}
+        {% for event in events %}
+          <li class="le-event">
+            <div class="le-wrapper">
+
+              <div class="le-date-image">
+                <div class="le-photo">
+                  <a href="{{ event.url }}"{% if settings.target_blank %} target="_blank"{% endif %}>{% photo_for event size:"Huge" class:'le-image' %}</a>
+                </div>
+                <div class="le-date-wrapper">
+                  <div class="le-date">
+
+                    <div class="le-date-day">{% event_time event order:"date" date_format:"j" date_format_year:"j" %}</div>
+                    <div class="le-date-month">{% event_time event order:"date" date_format:"M" date_format_year:"M" %}</div>
+
+                  </div>
+                </div>
+              </div>
+
+              <div class="le-event-content">
+                <div class="le-event-title"><a href="{{ event.url }}"{% if settings.target_blank %} target="_blank"{% endif %}{% if settings.expand_descriptions %} onclick="mc_$$ID$$_util.toggle(this); return false;"{% endif %}>{{ event.name }}</a></div>
+
+
+
+
+
+              {% if settings.expand_descriptions %}<div class=lww style="display:none">{% endif %}
+              {% unless settings.hide_descriptions %}
+                <div class="le-description">
+
+
+
+
+
+                  {% item_description event %}
+
+                  <div class="le-time-location">
+                  {% if settings.show_times %}
+                    {% if event.start_time %}
+                      {% event_time event order:"time" time_format: "g:i a" short_time_format:"g:i a" %}
+                    {% endif %}
+                  {% endif %}
+
+                  {% if event.event_type == 'event' %}
+                    {% if event.place != empty and event.location_name != blank %}
+                      {% if settings.show_times and event.start_time %}
+                       &bull;
+                      {% endif %}
+                      {% if event.place %}
+                        {{ event.place.visible_name }}
+                      {% else %}
+                        {{ event.location_name }}
+                      {% endif %}
+                    {% endif %}
+                  {% endif %}
+                  </div>
+
+
+                </div>
+              {% endunless %}
+            {% if settings.expand_descriptions %}<p><a href="{{ event.url }}" {% if settings.target_blank %} target="_blank"{% endif %} class="view-event-details">View Details</a></p></div>{% endif %}
+              </div>
+
+            </div>
+
+          </li>
+        {% endfor %}
+      {% endif %}
+    </ul>
+  </div>
+</div>
